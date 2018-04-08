@@ -1,0 +1,107 @@
+#!/bin/sh
+#
+# swatch Starts/stop the "swatch" daemon
+#
+# chkconfig:   345 95 5
+# description: starts the swatch daemon
+
+### BEGIN INIT INFO
+# Provides: swatch
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# Default-Start: 345
+# Default-Stop: 95
+# Short-Description: Starts/stop the "swatch" daemon
+# Description:      Starts/stop the "swatch" daemon
+### END INIT INFO
+
+#
+# PUPPET CONTROLLED FILE - DO NOT MANUALLY EDIT
+#
+
+# If the daemon is not there, then exit.
+test -x /usr/bin/swatch || exit 5
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+restart() {
+    $0 stop
+    $0 start
+}
+
+
+case "$1" in
+'start')
+<% @conf.each do |key,hash| %>
+    echo -n $"Starting swatch-<%= key %>: "
+    daemon --pidfile=/var/run/swatch-<%= key %>.pid /usr/bin/swatch --daemon --config-file="<%= @conf_dir %>/<%= key %>" --tail-file="<%= hash["filewatch"] %>" --pid-file=/var/run/swatch-<%= key %>.pid
+    if [ $? -ne 0 ];then
+      RETVAL=$?
+    fi
+    echo
+
+<% end %>
+    [ -n $RETVAL ] && exit $RETVAL
+    ;;
+'stop')
+    for PIDFILE in /var/run/swatch-*.pid; do
+
+      if [ -e "${PIDFILE}" ]; then
+        if [ -d "/proc/$(cat ${PIDFILE})" ]; then
+          echo -n $"Stopping $(basename ${PIDFILE} .pid)"
+          killproc -p ${PIDFILE} -d 3 $(basename ${PIDFILE} .pid)
+          if [ $? -eq 0 ];then
+            /bin/rm -f "$PIDFILE"
+            success
+            echo
+          else
+            RETVAL=$?
+            echo_failure
+            echo
+          fi
+        else
+          echo -n "$(basename $PIDFILE .pid) stale PID file"
+          /bin/rm -f "$PIDFILE"
+          success
+          echo
+        fi
+      fi
+
+    done
+
+    [ -n $RETVAL ] && exit $RETVAL
+    ;;
+'restart')
+    restart
+    ;;
+'reload')
+    restart
+    ;;
+'status')
+    for i in <%= @conf_dir %>/*; do
+      if [ -f "/var/run/swatch-$(basename $i).pid" ];then
+        PID=$(cat "/var/run/swatch-$(basename $i).pid")
+        if [ -d "/proc/${PID}" ];then
+          echo -n "$(basename $i) Running ($PID)"
+          success; echo
+        else
+          echo -n "$(basename $i) Not running but PID existed"
+          rm -f "/var/run/swatch-$(basename $i).pid"
+          echo_failure; echo
+          RETVAL=1
+        fi
+      else
+        #service is not running
+        echo -n "$(basename $i) Not running"
+        echo_failure; echo
+        RETVAL=3
+      fi
+    done
+
+    [ -n $RETVAL ] && exit $RETVAL
+    ;;
+*)
+    echo "Usage: $0 { start | stop | restart | reload | status }"
+    ;;
+esac
