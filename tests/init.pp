@@ -9,20 +9,20 @@
 # Learn more about module testing here:
 # http://docs.puppetlabs.com/guides/tests_smoke.html
 #
-class { ::swatch: 
+class { '::swatch':
 
   service_ensure => 'stopped',
   conf_dir       => '/tmp/swatch.d',
 
   conf => {
-    'apacheStartup' => { 
+    'apacheStartup' => {
       'filewatch' => '/var/log/httpd/error_log',
-      'content'   => "watchfor /Apache.* configured -- resuming normal operations/\n\texec /bin/logger 'apache startup detected'" 
+      'content'   => "watchfor /Apache.* configured -- resuming normal operations/\n\texec /bin/logger 'apache startup detected'",
     },
-    'sudoRoot' => { 
+    'sudoRoot' => {
       'filewatch' => '/var/log/secure',
-      'content'   => "watchfor /sudo: (.*) :.* USER=root .*/\n\texec /bin/logger 'sudo to root by \$1'" 
-    } 
-  }
+      'content'   => "watchfor /sudo: (.*) :.* USER=root .*/\n\texec /bin/logger 'sudo to root by \$1'",
+    },
+  },
 
 }

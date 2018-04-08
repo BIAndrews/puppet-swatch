@@ -6,8 +6,8 @@
 class swatch::service {
 
   service { $::swatch::service_name:
-    ensure => $::swatch::service_ensure,
-    enable => $::swatch::service_enable,
+    ensure  => $::swatch::service_ensure,
+    enable  => $::swatch::service_enable,
     require => Package[$::swatch::package_name],
   }
 

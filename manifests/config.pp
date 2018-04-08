@@ -4,23 +4,6 @@
 #
 class swatch::config {
 
-  #
-  # define used to create multiple files
-  #
-
-  define generate_swatch_configs (
-    $filewatch,
-    $content,
-    $ensure = file,
-  ) {
-    file { "${::swatch::conf_dir}/${title}":
-      ensure  => $ensure,
-      content => $content,
-      notify  => Service[$::swatch::service_name],
-      require => File[$::swatch::conf_dir],
-    }
-  }
-
   # conf dir
   file { $::swatch::conf_dir:
     ensure => directory,
@@ -39,7 +22,7 @@ class swatch::config {
     }
   }
 
-  create_resources(swatch::config::generate_swatch_configs, $::swatch::conf)
+  create_resources(swatch::generate_swatch_configs, $::swatch::conf)
 
 
 }

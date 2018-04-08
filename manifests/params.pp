@@ -6,7 +6,7 @@
 class swatch::params {
 
   $version        = 'latest'
-  $service_enable = 'true'
+  $service_enable = true
   $service_ensure = 'running'
   $conf_dir       = '/etc/swatch.d'
 
