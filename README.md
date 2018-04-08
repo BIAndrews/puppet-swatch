@@ -44,12 +44,12 @@ class { '::swatch':
 
 ## Reference
 
-###Classes
+### Classes
 
-####Public classes
+#### Public classes
 * `swatch`: Installs and configures swatch.
 
-####Private classes
+#### Private classes
 * `swatch::params`: Auto detection of package names based on OS family.
 * `swatch::install`: Package installation.
 * `swatch::config`: Init script and config files.
